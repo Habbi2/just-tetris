@@ -1,35 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --neon-cyan: #00ffff;
+  --neon-pink: #ff00ff;
+  --neon-yellow: #ffff00;
+  --neon-green: #00ff00;
+  --dark-bg: #0a0a0f;
+  --purple-dark: #1a0b2e;
+  --blue-dark: #16213e;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: 'Orbitron', monospace;
+  background: radial-gradient(ellipse at center, var(--purple-dark) 0%, var(--dark-bg) 70%);
+  color: #ffffff;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
+/* Animated background grid */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+/* Simplified neon glow effects - reduced for performance */
+.neon-glow {
+  text-shadow: 
+    0 0 3px currentColor,
+    0 0 6px currentColor;
+  /* Removed heavy animation for better performance */
+}
+
+/* Simplified pixelated buttons - reduced animations */
+.pixel-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 2px solid;
+  background: rgba(0, 255, 255, 0.05);
+  position: relative;
+  transition: all 0.15s ease; /* Faster transition for responsiveness */
+}
+
+.pixel-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+/* Glitch effect for title */
+.glitch {
+  position: relative;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+/* Simplified glitch effect - reduced for performance */
+.glitch {
+  position: relative;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.glitch::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--neon-cyan);
+  opacity: 0.5;
+  z-index: -1;
+  transform: translate(-1px, 1px);
+}
+
+/* Simplified retro card styling */
+.retro-card {
+  background: rgba(0, 255, 255, 0.05);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  border-radius: 0.75rem;
+  padding: 2rem;
+}
+
+/* Leaderboard styling */
+.leaderboard-entry {
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.1), transparent);
+  border-left: 4px solid var(--neon-cyan);
+  transition: all 0.3s ease;
+}
+
+.leaderboard-entry:hover {
+  background: linear-gradient(90deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.1));
+  transform: translateX(5px);
+}
+
+/* Tetris game grid */
 .tetris-grid {
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.5),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
-.tetris-block {
-  border: 1px solid rgba(255, 255, 255, 0.3);
+.tetris-grid::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+  z-index: -1;
+  filter: blur(10px);
+  opacity: 0.5;
+}
+
+/* Stats display */
+.stat-display {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(26, 11, 46, 0.8));
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+}
+
+.stat-value {
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px var(--neon-yellow);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+/* Floating particles */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 6px var(--neon-cyan);
+  animation: float 6s linear infinite;
+}
+
+.particle:nth-child(2) { background: var(--neon-pink); box-shadow: 0 0 6px var(--neon-pink); animation-delay: -2s; }
+.particle:nth-child(3) { background: var(--neon-yellow); box-shadow: 0 0 6px var(--neon-yellow); animation-delay: -4s; }
+
+@keyframes float {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+/* Mobile touch optimizations */
+@media (max-width: 768px) {
+  /* Prevent zoom on touch */
+  * {
+    touch-action: manipulation;
+  }
+  
+  /* Larger touch targets for mobile */
+  .pixel-btn {
+    min-height: 44px; /* iOS touch target minimum */
+    padding: 12px 16px;
+  }
+  
+  /* Optimize canvas for mobile */
+  .tetris-grid {
+    max-width: 100vw;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  
+  /* Mobile-friendly containers */
+  .retro-card {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  /* Prevent text selection on touch */
+  canvas {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Touch feedback */
+.pixel-btn:active {
+  transform: translateY(0px) scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Mobile landscape optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .tetris-grid {
+    max-height: 80vh;
+  }
 }

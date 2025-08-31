@@ -84,6 +84,9 @@ class TetrisScene extends Phaser.Scene {
   this.createUI()
     this.setupInput()
     this.renderGrid() // Initial render
+    
+    // Show mobile touch instructions if on touch device
+    this.showMobileTouchInstructions()
   }
 
   update(time: number) {
@@ -335,21 +338,87 @@ class TetrisScene extends Phaser.Scene {
     }
   }
 
-  private createUI() {
-    // Game border (10 blocks * 28px = 280px width, 20 blocks * 28px = 560px height)
-    const graphics = this.add.graphics()
-    graphics.lineStyle(2, 0xffffff)
-    graphics.strokeRect(0, 0, 280, 560)
+  private drawGridLines(x: number, y: number, width: number, height: number, color: number, alpha: number) {
+    const gridGraphics = this.add.graphics()
+    gridGraphics.lineStyle(1, color, alpha)
+    
+    // Draw vertical lines (28px spacing for blocks in single-player)
+    for (let i = 28; i < width; i += 28) {
+      gridGraphics.moveTo(x + i, y)
+      gridGraphics.lineTo(x + i, y + height)
+    }
+    
+    // Draw horizontal lines (28px spacing for blocks in single-player)
+    for (let i = 28; i < height; i += 28) {
+      gridGraphics.moveTo(x, y + i)
+      gridGraphics.lineTo(x + width, y + i)
+    }
+    
+    gridGraphics.strokePath()
+  }
 
-    // Score display
-    this.add.text(300, 50, 'SCORE', { fontSize: '20px', color: '#ffffff' })
-    this.add.text(300, 80, '0', { fontSize: '24px', color: '#ffff00' }).setName('scoreText')
+  private createUI() {
+    // Enhanced game board background and border
+    const bgBoard = this.add.graphics()
+    bgBoard.fillStyle(0x1a1a2e, 0.3)
+    bgBoard.fillRect(0, 0, 280, 560)
     
-    this.add.text(300, 140, 'LEVEL', { fontSize: '20px', color: '#ffffff' })
-    this.add.text(300, 170, '1', { fontSize: '24px', color: '#ffff00' }).setName('levelText')
+    // Draw grid lines for better visual reference
+    this.drawGridLines(0, 0, 280, 560, 0x00ffff, 0.1)
     
-    this.add.text(300, 230, 'LINES', { fontSize: '20px', color: '#ffffff' })
-    this.add.text(300, 260, '0', { fontSize: '24px', color: '#ffff00' }).setName('linesText')
+    // Enhanced game border with gradient effect
+    const graphics = this.add.graphics()
+    graphics.lineStyle(3, 0x00ffff, 1)
+    graphics.strokeRect(-1, -1, 282, 562)
+    graphics.lineStyle(1, 0x00cccc, 0.5)
+    graphics.strokeRect(1, 1, 278, 558)
+
+    // Enhanced stats panel background
+    const statsPanel = this.add.graphics()
+    statsPanel.fillStyle(0x1a1a2e, 0.4)
+    statsPanel.fillRect(290, 40, 160, 200)
+    statsPanel.lineStyle(2, 0x00ffff, 0.8)
+    statsPanel.strokeRect(290, 40, 160, 200)
+
+    // Score display with enhanced styling
+    this.add.text(300, 50, 'SCORE', { 
+      fontSize: '20px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 80, '0', { 
+      fontSize: '24px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('scoreText')
+    
+    this.add.text(300, 140, 'LEVEL', { 
+      fontSize: '20px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 170, '1', { 
+      fontSize: '24px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('levelText')
+    
+    this.add.text(300, 230, 'LINES', { 
+      fontSize: '20px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 260, '0', { 
+      fontSize: '24px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('linesText')
 
   this.add.text(300, 300, 'COMBO', { fontSize: '20px', color: '#ffffff' })
   this.add.text(300, 330, '0', { fontSize: '24px', color: '#00ffcc' }).setName('comboText')
@@ -364,10 +433,32 @@ class TetrisScene extends Phaser.Scene {
   this.add.text(300, 460 - 30, 'HOLD', { fontSize: '16px', color: '#ffffff' })
   g2.strokeRect(320, 460 - 20, 120, 80)
 
-    // Controls
-  this.add.text(300, 510, 'CONTROLS:', { fontSize: '16px', color: '#ffffff' })
-  this.add.text(300, 530, 'A/D - Move | S - Soft Drop', { fontSize: '14px', color: '#cccccc' })
-  this.add.text(300, 550, 'W - Rotate | Space - Hard Drop | Shift - Hold', { fontSize: '14px', color: '#cccccc' })
+    // Enhanced controls with mobile touch instructions
+    this.add.text(300, 510, 'CONTROLS:', { 
+      fontSize: '16px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 530, 'A/D - Move | S - Soft Drop', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 545, 'W - Rotate | Space - Hard Drop | Shift - Hold', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 570, 'TOUCH: Swipe L/R - Move | Tap - Rotate', { 
+      fontSize: '11px', 
+      color: '#00ffcc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(300, 585, 'Swipe Down - Drop | Right Tap - Hold', { 
+      fontSize: '11px', 
+      color: '#00ffcc',
+      fontFamily: 'Orbitron, monospace'
+    })
   }
 
   private updateUI() {
@@ -386,6 +477,7 @@ class TetrisScene extends Phaser.Scene {
     const cursors = this.input.keyboard?.createCursorKeys()
     const wasd = this.input.keyboard?.addKeys('W,S,A,D,SPACE')
 
+    // Keyboard controls
     this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
       if (this.gameOver) return
 
@@ -424,6 +516,140 @@ class TetrisScene extends Phaser.Scene {
           break
       }
     })
+
+    // Touch controls for mobile devices
+    this.setupTouchControls()
+  }
+
+  private setupTouchControls() {
+    // Touch variables
+    let touchStartX = 0
+    let touchStartY = 0
+    let touchStartTime = 0
+    const swipeThreshold = 50
+    const tapThreshold = 200 // ms for distinguishing tap vs swipe
+
+    // Add touch event listeners to the game canvas
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.gameOver) return
+      
+      touchStartX = pointer.x
+      touchStartY = pointer.y
+      touchStartTime = Date.now()
+    })
+
+    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (this.gameOver) return
+
+      const touchEndX = pointer.x
+      const touchEndY = pointer.y
+      const touchEndTime = Date.now()
+      const touchDuration = touchEndTime - touchStartTime
+
+      const deltaX = touchEndX - touchStartX
+      const deltaY = touchEndY - touchStartY
+      const absDeltaX = Math.abs(deltaX)
+      const absDeltaY = Math.abs(deltaY)
+
+      // Handle tap gestures (short duration, small movement)
+      if (touchDuration < tapThreshold && absDeltaX < 30 && absDeltaY < 30) {
+        // Determine tap location for different actions
+        if (touchStartX < 140) {
+          // Left side of screen - rotate
+          this.rotatePiece()
+        } else if (touchStartX > 300) {
+          // Right side of screen - hold piece
+          this.holdCurrentPiece()
+        } else {
+          // Center - rotate (default action)
+          this.rotatePiece()
+        }
+        return
+      }
+
+      // Handle swipe gestures
+      if (absDeltaX > swipeThreshold || absDeltaY > swipeThreshold) {
+        if (absDeltaX > absDeltaY) {
+          // Horizontal swipe
+          if (deltaX > 0) {
+            // Swipe right - move right
+            if (!this.checkCollision(this.currentPiece, 1, 0)) {
+              this.currentPiece.x++
+              this.renderGrid()
+            }
+          } else {
+            // Swipe left - move left
+            if (!this.checkCollision(this.currentPiece, -1, 0)) {
+              this.currentPiece.x--
+              this.renderGrid()
+            }
+          }
+        } else {
+          // Vertical swipe
+          if (deltaY > 0) {
+            // Swipe down - soft drop or hard drop based on speed
+            if (touchDuration < 150) {
+              // Fast swipe down - hard drop
+              this.hardDrop()
+            } else {
+              // Slow swipe down - soft drop
+              if (!this.checkCollision(this.currentPiece, 0, 1)) {
+                this.currentPiece.y++
+                this.renderGrid()
+              }
+            }
+          }
+          // Swipe up could be used for rotate as alternative
+          else {
+            this.rotatePiece()
+          }
+        }
+      }
+    })
+  }
+
+  private showMobileTouchInstructions() {
+    // Detect if device supports touch
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    
+    if (isTouchDevice) {
+      // Create a temporary overlay with touch instructions
+      const overlay = this.add.graphics()
+      overlay.fillStyle(0x000000, 0.8)
+      overlay.fillRect(0, 0, 450, 600)
+      overlay.setDepth(1000)
+      
+      const instructionText = this.add.text(225, 250, 'TOUCH CONTROLS', {
+        fontSize: '20px',
+        color: '#00ffff',
+        fontFamily: 'Orbitron, monospace'
+      }).setOrigin(0.5).setDepth(1001)
+      
+      const instructionDetails = this.add.text(225, 300, 
+        'Swipe Left/Right - Move\n' +
+        'Tap Left - Rotate\n' +
+        'Swipe Down - Drop\n' +
+        'Tap Right - Hold\n\n' +
+        'Tap to start!', {
+        fontSize: '14px',
+        color: '#ffffff',
+        fontFamily: 'Orbitron, monospace',
+        align: 'center'
+      }).setOrigin(0.5).setDepth(1001)
+      
+      // Remove overlay on first touch/click
+      const removeOverlay = () => {
+        overlay.destroy()
+        instructionText.destroy()
+        instructionDetails.destroy()
+        this.input.off('pointerdown', removeOverlay)
+      }
+      
+      this.input.once('pointerdown', removeOverlay)
+      
+      // Auto-remove after 4 seconds
+      this.time.delayedCall(4000, removeOverlay)
+    }
   }
 
   private rotatePiece() {

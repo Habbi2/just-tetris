@@ -253,16 +253,16 @@ export default function GameLobby({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8">
+      <div className="retro-card">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Game Lobby</h2>
+          <h2 className="text-3xl font-bold text-white mb-2 tracking-wider uppercase">Game Lobby</h2>
           <div className="flex items-center justify-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-gray-300">Room Code:</span>
-              <span className="text-2xl font-mono text-yellow-400">{roomCode}</span>
+              <span className="text-cyan-400/80 font-mono tracking-wide">Room Code:</span>
+              <span className="text-2xl font-mono text-yellow-400 tracking-widest">{roomCode}</span>
               <button
                 onClick={copyRoomCode}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                className="pixel-btn pixel-btn-primary text-sm"
               >
                 Copy
               </button>
@@ -273,7 +273,7 @@ export default function GameLobby({
         <div className="space-y-6">
           {/* Players List */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4">Players ({players.length}/2)</h3>
+            <h3 className="text-xl font-semibold text-white mb-4 tracking-wide uppercase">Players ({players.length}/2)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2].map((num) => {
                 const player = players.find(p => p.player_number === num)
@@ -282,33 +282,33 @@ export default function GameLobby({
                 return (
                   <div
                     key={num}
-                    className={`p-4 rounded-lg border-2 ${
+                    className={`p-4 rounded-lg border-2 backdrop-blur-sm transition-all duration-200 ${
                       player 
                         ? isCurrentPlayer
-                          ? 'bg-blue-600/20 border-blue-500'
-                          : 'bg-green-600/20 border-green-500'
-                        : 'bg-gray-600/20 border-gray-500 border-dashed'
+                          ? 'bg-blue-500/20 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)]'
+                          : 'bg-green-500/20 border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.3)]'
+                        : 'bg-gray-600/20 border-gray-500/50 border-dashed'
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-lg font-semibold text-white mb-2">
+                      <div className="text-lg font-semibold text-white mb-2 font-mono tracking-wider">
                         Player {num}
                         {isCurrentPlayer && ' (You)'}
                       </div>
                       
                       {player ? (
                         <>
-                          <div className="text-gray-300 mb-2">{player.player_name}</div>
-                          <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                          <div className="text-cyan-400/90 mb-2 font-mono tracking-wide">{player.player_name}</div>
+                          <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium font-mono tracking-wide ${
                             player.is_ready 
-                              ? 'bg-green-600 text-white' 
-                              : 'bg-yellow-600 text-white'
+                              ? 'bg-green-500/80 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]' 
+                              : 'bg-yellow-500/80 text-black shadow-[0_0_10px_rgba(234,179,8,0.5)]'
                           }`}>
                             {player.is_ready ? 'Ready' : 'Not Ready'}
                           </div>
                         </>
                       ) : (
-                        <div className="text-gray-400">Waiting for player...</div>
+                        <div className="text-cyan-400/50 font-mono tracking-wide">Waiting for player...</div>
                       )}
                     </div>
                   </div>
@@ -322,10 +322,10 @@ export default function GameLobby({
             <div className="text-center">
               <button
                 onClick={toggleReady}
-                className={`px-8 py-4 font-semibold rounded-lg transition-all duration-200 ${
+                className={`pixel-btn py-4 px-8 font-semibold ${
                   isReady
-                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                    : 'bg-green-600 hover:bg-green-700 text-white'
+                    ? 'pixel-btn-warning'
+                    : 'pixel-btn-success'
                 }`}
               >
                 {isReady ? 'Cancel Ready' : 'Ready Up'}
@@ -335,15 +335,15 @@ export default function GameLobby({
 
           {/* Game Status */}
           {canStart && (
-            <div className="text-center p-4 bg-green-600/20 border border-green-500/50 rounded-lg">
-              <div className="text-green-200 font-semibold">
+            <div className="text-center p-4 bg-green-500/20 border border-green-400/50 rounded-lg backdrop-blur-sm shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+              <div className="text-green-200 font-semibold font-mono tracking-wider uppercase">
                 All players ready! Starting game...
               </div>
             </div>
           )}
 
           {/* Instructions */}
-          <div className="text-center text-gray-300 text-sm">
+          <div className="text-center text-cyan-400/70 text-sm font-mono tracking-wide">
             Share the room code with your friend to let them join!
           </div>
 
@@ -351,7 +351,7 @@ export default function GameLobby({
           <div className="text-center">
             <button
               onClick={leaveRoom}
-              className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              className="pixel-btn pixel-btn-danger"
             >
               Leave Room
             </button>

@@ -77,13 +77,31 @@ class MultiplayerTetrisScene extends Phaser.Scene {
   }
 
   preload() {
-    // Generate solid tile textures
+    // Generate enhanced tile textures with borders and gradients
     const colors = ['cyan', 'yellow', 'purple', 'orange', 'blue', 'green', 'red', 'gray', 'darkgray']
 
     colors.forEach(color => {
       const g = this.add.graphics()
-      g.fillStyle(this.getColorHex(color), 1)
-      g.fillRect(0, 0, 24, 24) // Smaller blocks for dual view
+      const colorHex = this.getColorHex(color)
+      
+      // Main block fill
+      g.fillStyle(colorHex, 1)
+      g.fillRect(1, 1, 22, 22)
+      
+      // Add highlight on top and left
+      g.fillStyle(this.getLighterColor(colorHex), 0.6)
+      g.fillRect(1, 1, 22, 2) // top highlight
+      g.fillRect(1, 1, 2, 22) // left highlight
+      
+      // Add shadow on bottom and right
+      g.fillStyle(this.getDarkerColor(colorHex), 0.8)
+      g.fillRect(1, 21, 22, 2) // bottom shadow
+      g.fillRect(21, 1, 2, 22) // right shadow
+      
+      // Add outer border
+      g.lineStyle(1, 0x000000, 0.3)
+      g.strokeRect(0, 0, 24, 24)
+      
       g.generateTexture(color, 24, 24)
       g.destroy()
     })
@@ -108,6 +126,10 @@ class MultiplayerTetrisScene extends Phaser.Scene {
     this.setupInput()
     this.setupRealtimeSync()
     this.renderGrid()
+    
+    // Show mobile touch instructions if on touch device
+    this.showMobileTouchInstructions()
+    
     // Publish initial state so opponent can see your board immediately
     this.syncGameState()
     // Also fetch opponent state immediately and start polling as a fallback
@@ -177,6 +199,20 @@ class MultiplayerTetrisScene extends Phaser.Scene {
       darkgray: 0x404040
     }
     return colors[color] || 0x808080
+  }
+
+  private getLighterColor(colorHex: number): number {
+    const r = Math.min(255, ((colorHex >> 16) & 0xFF) + 60)
+    const g = Math.min(255, ((colorHex >> 8) & 0xFF) + 60) 
+    const b = Math.min(255, (colorHex & 0xFF) + 60)
+    return (r << 16) | (g << 8) | b
+  }
+
+  private getDarkerColor(colorHex: number): number {
+    const r = Math.max(0, ((colorHex >> 16) & 0xFF) - 60)
+    const g = Math.max(0, ((colorHex >> 8) & 0xFF) - 60)
+    const b = Math.max(0, (colorHex & 0xFF) - 60)
+    return (r << 16) | (g << 8) | b
   }
 
   private initializeGrids() {
@@ -467,48 +503,208 @@ class MultiplayerTetrisScene extends Phaser.Scene {
     }
   }
 
+  private drawGridLines(x: number, y: number, width: number, height: number, color: number, alpha: number) {
+    const gridGraphics = this.add.graphics()
+    gridGraphics.lineStyle(1, color, alpha)
+    
+    // Draw vertical lines (24px spacing for blocks)
+    for (let i = 24; i < width; i += 24) {
+      gridGraphics.moveTo(x + i, y)
+      gridGraphics.lineTo(x + i, y + height)
+    }
+    
+    // Draw horizontal lines (24px spacing for blocks)
+    for (let i = 24; i < height; i += 24) {
+      gridGraphics.moveTo(x, y + i)
+      gridGraphics.lineTo(x + width, y + i)
+    }
+    
+    gridGraphics.strokePath()
+  }
+
   private createUI() {
-    // Player grid border
+    // Enhanced grid backgrounds with subtle patterns
+    const bgGrid1 = this.add.graphics()
+    bgGrid1.fillStyle(0x1a1a2e, 0.3)
+    bgGrid1.fillRect(50, 50, 240, 480)
+    
+    const bgGrid2 = this.add.graphics()
+    bgGrid2.fillStyle(0x1a1a2e, 0.3)
+    bgGrid2.fillRect(350, 50, 240, 480)
+
+    // Draw grid lines for better visual reference
+    this.drawGridLines(50, 50, 240, 480, 0x00ffff, 0.1) // Player grid lines
+    this.drawGridLines(350, 50, 240, 480, 0xff4444, 0.1) // Opponent grid lines
+
+    // Enhanced player grid border with gradient effect
     const g1 = this.add.graphics()
-    g1.lineStyle(2, 0xffffff)
-    g1.strokeRect(50, 50, 240, 480)
+    g1.lineStyle(3, 0x00ffff, 1)
+    g1.strokeRect(49, 49, 242, 482)
+    g1.lineStyle(1, 0x00cccc, 0.5)
+    g1.strokeRect(51, 51, 238, 478)
     
-    // Opponent grid border
+    // Enhanced opponent grid border with gradient effect
     const g2 = this.add.graphics()
-    g2.lineStyle(2, 0xff6666)
-    g2.strokeRect(350, 50, 240, 480)
+    g2.lineStyle(3, 0xff4444, 1)
+    g2.strokeRect(349, 49, 242, 482)
+    g2.lineStyle(1, 0xcc4444, 0.5)
+    g2.strokeRect(351, 51, 238, 478)
 
-    // Labels
-    this.add.text(150, 20, 'YOU', { fontSize: '20px', color: '#ffffff' }).setOrigin(0.5)
-    this.add.text(470, 20, 'OPPONENT', { fontSize: '20px', color: '#ff6666' }).setOrigin(0.5)
+    // Labels with retro styling
+    this.add.text(150, 20, 'YOU', { 
+      fontSize: '20px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5)
+    this.add.text(470, 20, 'OPPONENT', { 
+      fontSize: '20px', 
+      color: '#ff4444',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5)
 
-    // Player stats
-    this.add.text(650, 50, 'SCORE', { fontSize: '18px', color: '#ffffff' })
-    this.add.text(650, 80, '0', { fontSize: '20px', color: '#ffff00' }).setName('scoreText')
+    // Enhanced stats panel background
+    const statsPanel = this.add.graphics()
+    statsPanel.fillStyle(0x1a1a2e, 0.4)
+    statsPanel.fillRect(640, 40, 150, 280)
+    statsPanel.lineStyle(2, 0x00ffff, 0.8)
+    statsPanel.strokeRect(640, 40, 150, 280)
+
+    // Player stats with retro styling
+    this.add.text(650, 50, 'SCORE', { 
+      fontSize: '18px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 80, '0', { 
+      fontSize: '20px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('scoreText')
     
-    this.add.text(650, 120, 'LEVEL', { fontSize: '18px', color: '#ffffff' })
-    this.add.text(650, 150, '1', { fontSize: '20px', color: '#ffff00' }).setName('levelText')
+    this.add.text(650, 120, 'LEVEL', { 
+      fontSize: '18px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 150, '1', { 
+      fontSize: '20px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('levelText')
     
-    this.add.text(650, 190, 'LINES', { fontSize: '18px', color: '#ffffff' })
-    this.add.text(650, 220, '0', { fontSize: '20px', color: '#ffff00' }).setName('linesText')
+    this.add.text(650, 190, 'LINES', { 
+      fontSize: '18px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 220, '0', { 
+      fontSize: '20px', 
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('linesText')
 
-    this.add.text(650, 260, 'COMBO', { fontSize: '18px', color: '#ffffff' })
-    this.add.text(650, 290, '0', { fontSize: '20px', color: '#00ffcc' }).setName('comboText')
+    this.add.text(650, 260, 'COMBO', { 
+      fontSize: '18px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 290, '0', { 
+      fontSize: '20px', 
+      color: '#00ffcc',
+      fontFamily: 'Orbitron, monospace',
+      stroke: '#000000',
+      strokeThickness: 1
+    }).setName('comboText')
 
-    // Preview boxes
+    // Enhanced preview boxes with better styling
     const g3 = this.add.graphics()
-    g3.lineStyle(1, 0xcccccc)
-    this.add.text(50, 540 - 20, 'HOLD', { fontSize: '14px', color: '#ffffff' })
-    g3.strokeRect(35, 540, 80, 60)
     
-    this.add.text(150, 540 - 20, 'NEXT', { fontSize: '14px', color: '#ffffff' })
+    // HOLD box with enhanced styling
+    g3.fillStyle(0x1a1a2e, 0.4)
+    g3.fillRect(35, 540, 80, 60)
+    g3.lineStyle(3, 0x00ffff, 1)
+    g3.strokeRect(35, 540, 80, 60)
+    g3.lineStyle(1, 0x00cccc, 0.5)
+    g3.strokeRect(37, 542, 76, 56)
+    
+    this.add.text(50, 540 - 20, 'HOLD', { 
+      fontSize: '14px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    
+    // NEXT box with enhanced styling  
+    g3.fillStyle(0x1a1a2e, 0.4)
+    g3.fillRect(135, 540, 80, 60)
+    g3.lineStyle(3, 0x00ffff, 1)
     g3.strokeRect(135, 540, 80, 60)
+    g3.lineStyle(1, 0x00cccc, 0.5)
+    g3.strokeRect(137, 542, 76, 56)
+    
+    this.add.text(150, 540 - 20, 'NEXT', { 
+      fontSize: '14px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
 
-    // Controls
-    this.add.text(650, 350, 'CONTROLS:', { fontSize: '16px', color: '#ffffff' })
-    this.add.text(650, 375, 'A/D - Move', { fontSize: '12px', color: '#cccccc' })
-    this.add.text(650, 395, 'S - Drop | W - Rotate', { fontSize: '12px', color: '#cccccc' })
-    this.add.text(650, 415, 'Space - Hard Drop', { fontSize: '12px', color: '#cccccc' })
+    // Enhanced controls panel background
+    const controlsPanel = this.add.graphics()
+    controlsPanel.fillStyle(0x1a1a2e, 0.4)
+    controlsPanel.fillRect(640, 340, 150, 140)
+    controlsPanel.lineStyle(2, 0x00ffff, 0.8)
+    controlsPanel.strokeRect(640, 340, 150, 140)
+
+    // Controls with retro styling - Updated for mobile
+    this.add.text(650, 350, 'CONTROLS:', { 
+      fontSize: '16px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 375, 'A/D - Move', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 390, 'S - Drop | W - Rotate', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 405, 'Space - Hard Drop', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 420, 'Shift - Hold', { 
+      fontSize: '12px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 440, 'TOUCH:', { 
+      fontSize: '12px', 
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 455, 'Swipe L/R - Move', { 
+      fontSize: '10px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
+    this.add.text(650, 467, 'Tap - Rotate | Swipe Down - Drop', { 
+      fontSize: '10px', 
+      color: '#cccccc',
+      fontFamily: 'Orbitron, monospace'
+    })
     this.add.text(650, 435, 'Shift - Hold', { fontSize: '12px', color: '#cccccc' })
   }
 
@@ -525,6 +721,7 @@ class MultiplayerTetrisScene extends Phaser.Scene {
   }
 
   private setupInput() {
+    // Keyboard controls
     this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
       if (this.gameOver) return
 
@@ -566,6 +763,143 @@ class MultiplayerTetrisScene extends Phaser.Scene {
           break
       }
     })
+
+    // Touch controls for mobile devices
+    this.setupTouchControls()
+  }
+
+  private setupTouchControls() {
+    // Touch variables
+    let touchStartX = 0
+    let touchStartY = 0
+    let touchStartTime = 0
+    const swipeThreshold = 50
+    const tapThreshold = 200 // ms for distinguishing tap vs swipe
+
+    // Add touch event listeners to the game canvas
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.gameOver) return
+      
+      touchStartX = pointer.x
+      touchStartY = pointer.y
+      touchStartTime = Date.now()
+    })
+
+    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (this.gameOver) return
+
+      const touchEndX = pointer.x
+      const touchEndY = pointer.y
+      const touchEndTime = Date.now()
+      const touchDuration = touchEndTime - touchStartTime
+
+      const deltaX = touchEndX - touchStartX
+      const deltaY = touchEndY - touchStartY
+      const absDeltaX = Math.abs(deltaX)
+      const absDeltaY = Math.abs(deltaY)
+
+      // Handle tap gestures (short duration, small movement)
+      if (touchDuration < tapThreshold && absDeltaX < 30 && absDeltaY < 30) {
+        // Determine tap location for different actions
+        if (touchStartX < 300) {
+          // Left side of screen - rotate
+          this.rotatePiece()
+        } else if (touchStartX > 500) {
+          // Right side of screen - hold piece
+          this.holdCurrentPiece()
+        } else {
+          // Center - rotate (default action)
+          this.rotatePiece()
+        }
+        return
+      }
+
+      // Handle swipe gestures
+      if (absDeltaX > swipeThreshold || absDeltaY > swipeThreshold) {
+        if (absDeltaX > absDeltaY) {
+          // Horizontal swipe
+          if (deltaX > 0) {
+            // Swipe right - move right
+            if (!this.checkCollision(this.currentPiece, 1, 0)) {
+              this.currentPiece.x++
+              this.renderGrid()
+              this.syncGameState()
+            }
+          } else {
+            // Swipe left - move left
+            if (!this.checkCollision(this.currentPiece, -1, 0)) {
+              this.currentPiece.x--
+              this.renderGrid()
+              this.syncGameState()
+            }
+          }
+        } else {
+          // Vertical swipe
+          if (deltaY > 0) {
+            // Swipe down - soft drop or hard drop based on speed
+            if (touchDuration < 150) {
+              // Fast swipe down - hard drop
+              this.hardDrop()
+            } else {
+              // Slow swipe down - soft drop
+              if (!this.checkCollision(this.currentPiece, 0, 1)) {
+                this.currentPiece.y++
+                this.renderGrid()
+                this.syncGameState()
+              }
+            }
+          }
+          // Swipe up could be used for rotate as alternative
+          else {
+            this.rotatePiece()
+          }
+        }
+      }
+    })
+  }
+
+  private showMobileTouchInstructions() {
+    // Detect if device supports touch
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    
+    if (isTouchDevice) {
+      // Create a temporary overlay with touch instructions
+      const overlay = this.add.graphics()
+      overlay.fillStyle(0x000000, 0.8)
+      overlay.fillRect(0, 0, 800, 600)
+      overlay.setDepth(1000)
+      
+      const instructionText = this.add.text(400, 250, 'TOUCH CONTROLS', {
+        fontSize: '24px',
+        color: '#00ffff',
+        fontFamily: 'Orbitron, monospace'
+      }).setOrigin(0.5).setDepth(1001)
+      
+      const instructionDetails = this.add.text(400, 300, 
+        'Swipe Left/Right - Move Piece\n' +
+        'Tap - Rotate Piece\n' +
+        'Swipe Down - Drop Piece\n' +
+        'Tap Right Side - Hold Piece\n\n' +
+        'Tap anywhere to start!', {
+        fontSize: '16px',
+        color: '#ffffff',
+        fontFamily: 'Orbitron, monospace',
+        align: 'center'
+      }).setOrigin(0.5).setDepth(1001)
+      
+      // Remove overlay on first touch/click
+      const removeOverlay = () => {
+        overlay.destroy()
+        instructionText.destroy()
+        instructionDetails.destroy()
+        this.input.off('pointerdown', removeOverlay)
+      }
+      
+      this.input.once('pointerdown', removeOverlay)
+      
+      // Auto-remove after 5 seconds
+      this.time.delayedCall(5000, removeOverlay)
+    }
   }
 
   private rotatePiece() {
@@ -797,20 +1131,27 @@ class MultiplayerTetrisScene extends Phaser.Scene {
     this.add.text(400, 300, winner, { 
       fontSize: '32px', 
       color: this.opponentGameOver ? '#00ff00' : '#ff0000',
+      fontFamily: 'Orbitron, monospace',
       backgroundColor: '#000000',
-      padding: { x: 20, y: 10 }
+      padding: { x: 20, y: 10 },
+      stroke: '#000000',
+      strokeThickness: 3
     }).setOrigin(0.5)
 
     this.add.text(400, 350, `Final Score: ${this.score}`, { 
       fontSize: '18px', 
-      color: '#ffffff',
+      color: '#ffff00',
+      fontFamily: 'Orbitron, monospace',
       backgroundColor: '#000000',
-      padding: { x: 10, y: 5 }
+      padding: { x: 10, y: 5 },
+      stroke: '#000000',
+      strokeThickness: 1
     }).setOrigin(0.5)
 
     this.add.text(400, 380, 'Press R to return to lobby', { 
       fontSize: '16px', 
-      color: '#cccccc',
+      color: '#00ffff',
+      fontFamily: 'Orbitron, monospace',
       backgroundColor: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(0.5)
@@ -881,22 +1222,22 @@ export default function MultiplayerTetris({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="mb-4 text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">Multiplayer Tetris</h2>
-        <div className="text-gray-300">
-          Room: <span className="text-yellow-400 font-mono">{roomCode}</span> | 
+      <div className="mb-4 text-center retro-card max-w-md">
+        <h2 className="text-2xl font-bold text-white mb-2 tracking-wider uppercase">Multiplayer Tetris</h2>
+        <div className="text-cyan-400/80 font-mono tracking-wide">
+          Room: <span className="text-yellow-400 tracking-widest">{roomCode}</span> | 
           Player {playerNumber}: <span className="text-blue-400">{playerName}</span>
         </div>
       </div>
       
       <div 
         ref={gameRef} 
-        className="tetris-grid rounded-lg overflow-hidden shadow-2xl"
+        className="tetris-grid rounded-lg overflow-hidden shadow-2xl border-2 border-cyan-400/30"
       />
       
       <button
         onClick={onGameEnd}
-        className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
+        className="mt-4 pixel-btn pixel-btn-danger"
       >
         Leave Game
       </button>

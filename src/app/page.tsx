@@ -70,42 +70,49 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center text-white mb-8">
-          🧱 Tetris Online 🧱
+    <main className="min-h-screen relative overflow-hidden">
+      {/* Simplified floating particles background - reduced for performance */}
+      <div className="particles">
+        <div className="particle" style={{left: '20%', animationDelay: '0s'}}></div>
+        <div className="particle" style={{left: '50%', animationDelay: '-2s'}}></div>
+        <div className="particle" style={{left: '80%', animationDelay: '-4s'}}></div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <h1 className="text-6xl font-bold text-center mb-8 glitch" data-text="🧱 TETRIS ONLINE 🧱">
+          🧱 TETRIS ONLINE 🧱
         </h1>
         
         {gameMode === 'menu' && (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Menu Section */}
             <div className="lg:w-1/2 flex flex-col items-center justify-center">
-              <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 max-w-md w-full">
-                <h2 className="text-2xl font-semibold text-white mb-6 text-center">
-                  Ready to Play?
+              <div className="retro-card rounded-xl p-8 max-w-md w-full">
+                <h2 className="text-3xl font-bold text-center mb-8 neon-glow" style={{color: 'var(--neon-cyan)'}}>
+                  READY TO PLAY?
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <input
                     type="text"
-                    placeholder="Enter your name"
+                    placeholder="ENTER YOUR NAME"
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 border border-white/20 focus:border-white/50 focus:outline-none"
+                    className="w-full px-6 py-4 rounded-lg bg-black/50 border-2 border-cyan-400/50 text-white placeholder-cyan-300 focus:border-cyan-400 focus:outline-none text-center font-bold uppercase tracking-wider backdrop-blur-sm"
                     onKeyPress={(e) => e.key === 'Enter' && startSinglePlayer()}
                   />
                   <button
                     onClick={startSinglePlayer}
                     disabled={!playerName.trim()}
-                    className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="w-full py-4 px-6 pixel-btn border-cyan-400 text-cyan-400 hover:text-white hover:border-cyan-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
                   >
-                    Single Player
+                    SINGLE PLAYER
                   </button>
                   <button
                     onClick={startMatchmaking}
                     disabled={!playerName.trim()}
-                    className="w-full py-3 px-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="w-full py-4 px-6 pixel-btn border-pink-400 text-pink-400 hover:text-white hover:border-pink-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
                   >
-                    Multiplayer
+                    MULTIPLAYER
                   </button>
                 </div>
               </div>

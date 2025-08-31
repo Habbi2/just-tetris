@@ -244,12 +244,14 @@ export default function Matchmaking({ playerName, onJoinRoom, onBack }: Matchmak
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8">
+      <div className="retro-card">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-bold text-white">Multiplayer Matchmaking</h2>
+          <h2 className="text-3xl font-bold text-white tracking-wider uppercase">
+            Multiplayer Matchmaking
+          </h2>
           <button
             onClick={onBack}
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+            className="pixel-btn pixel-btn-secondary"
           >
             Back
           </button>
@@ -259,43 +261,43 @@ export default function Matchmaking({ playerName, onJoinRoom, onBack }: Matchmak
           {/* Quick Actions */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-semibold text-white mb-4">Quick Match</h3>
+              <h3 className="text-xl font-semibold text-white mb-4 tracking-wide uppercase">Quick Match</h3>
               <button
                 onClick={quickMatch}
                 disabled={isSearching}
-                className="w-full py-4 px-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full pixel-btn pixel-btn-success py-4"
               >
                 {isSearching ? 'Searching...' : 'Find Match'}
               </button>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white mb-4">Create Private Room</h3>
+              <h3 className="text-xl font-semibold text-white mb-4 tracking-wide uppercase">Create Private Room</h3>
               <button
                 onClick={createRoom}
                 disabled={isSearching}
-                className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full pixel-btn pixel-btn-primary py-4"
               >
                 {isSearching ? 'Creating...' : 'Create Room'}
               </button>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white mb-4">Join by Code</h3>
+              <h3 className="text-xl font-semibold text-white mb-4 tracking-wide uppercase">Join by Code</h3>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Room Code"
                   value={roomCode}
                   onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                  className="flex-1 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 border border-white/20 focus:border-white/50 focus:outline-none"
+                  className="flex-1 px-4 py-3 rounded-lg bg-black/50 backdrop-blur-sm text-white placeholder-white/50 border border-cyan-400/30 focus:border-cyan-400 focus:outline-none transition-all duration-200 font-mono tracking-wider"
                   maxLength={6}
                   onKeyPress={(e) => e.key === 'Enter' && joinByCode()}
                 />
                 <button
                   onClick={joinByCode}
                   disabled={isSearching || !roomCode.trim()}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="pixel-btn pixel-btn-danger"
                 >
                   Join
                 </button>
@@ -303,36 +305,36 @@ export default function Matchmaking({ playerName, onJoinRoom, onBack }: Matchmak
             </div>
 
             {error && (
-              <div className="p-4 bg-red-600/20 border border-red-500/50 rounded-lg">
-                <p className="text-red-200">{error}</p>
+              <div className="p-4 bg-red-500/20 border border-red-400/50 rounded-lg backdrop-blur-sm">
+                <p className="text-red-200 font-mono">{error}</p>
               </div>
             )}
           </div>
 
           {/* Available Rooms */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4">Available Rooms</h3>
+            <h3 className="text-xl font-semibold text-white mb-4 tracking-wide uppercase">Available Rooms</h3>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {rooms.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-cyan-400/70 font-mono tracking-wide">
                   No rooms available. Create one or try quick match!
                 </div>
               ) : (
                 rooms.map((room) => (
                   <div
                     key={room.id}
-                    className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20"
+                    className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-400/30 hover:border-cyan-400/50 transition-all duration-200"
                   >
                     <div>
-                      <div className="text-white font-semibold">Room {room.room_code}</div>
-                      <div className="text-gray-300 text-sm">
+                      <div className="text-white font-semibold font-mono tracking-wider">Room {room.room_code}</div>
+                      <div className="text-cyan-400/80 text-sm font-mono">
                         {room.current_players}/{room.max_players} players
                       </div>
                     </div>
                     <button
                       onClick={() => joinRoom(room)}
                       disabled={isSearching}
-                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="pixel-btn pixel-btn-success"
                     >
                       Join
                     </button>
